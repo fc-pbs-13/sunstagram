@@ -7,26 +7,28 @@ from accounts.models import Account
 
 class UserTestCase(APITestCase):
     def setUp(self) -> None:
-        self.testAccount = Account.objects.create(email="test@example.com", username="test", password="1111", )
-        self.data = {"email": self.testAccount.email, "username": "test", "password": "1111", }
-        self.testAccount.set_password(self.testAccount.password)
-        self.testAccount.save()
+        self.test_password = 1234
+        self.testAccount = Account.objects.create(email="test@example.com", username="test", password=self.test_password)
+        self.data = {"email": self.testAccount.email, "username": "test", "password": self.test_password, }
+        # self.testAccount.set_password(self.testAccount.password)
+        # self.testAccount.save()
 
-    def test_should_create(self):
-        data = {"email": "newemail@example.com", "username": "newuser", "password": "1111"}
-        response = self.client.post('/api/users/sign_up', data=data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        user_response = Munch(response.data)
-        print(user_response)
-        print("user created result")
-        self.assertTrue(user_response.id)
-        self.assertEqual(user_response.email, data['email'])
-        self.assertEqual(user_response.username, data['username'])
+    # def test_should_create(self):
+    #     data = {"email": "newemail@example.com", "username": "newuser", "password": self.test_password}
+    #     response = self.client.post('/api/users/sign_up', data=data)
+    #
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #
+    #     user_response = Munch(response.data)
+    #     print(user_response)
+    #     print("user created result")
+    #     self.assertTrue(user_response.id)
+    #     self.assertEqual(user_response.email, data['email'])
+    #     self.assertEqual(user_response.username, data['username'])
 
     def test_should_login(self):
         response = self.client.post('/api/users/sign_in', data=self.data)
+
         user_response = Munch(response.data)
         print(user_response)
         print("login result")
@@ -34,6 +36,7 @@ class UserTestCase(APITestCase):
         self.assertTrue(user_response.token)
         self.assertEqual(user_response.email, self.data['email'])
         self.assertEqual(user_response.username, self.data['username'])
+        self.fail()
 
     def test_should_logout(self):
         response = self.client.post('/api/users/sign_in', data=self.data)

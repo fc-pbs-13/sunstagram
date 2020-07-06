@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'accounts.Account'
 
+# MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +46,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'rest_framework.authtoken',
+    'core',
+    'accounts_profile',
 ]
 
 MIDDLEWARE = [
