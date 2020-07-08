@@ -78,6 +78,7 @@ class UserTestCase(APITestCase):
         response = self.client.put(f'/api/profile/{entry.id}', data=data)
 
         user_response = Munch(response.data)
+        print(user_response)
         self.assertEqual(user_response.email, data['email'])
         self.assertEqual(user_response.username, data['username'])
         self.assertEqual(user_response.web_site, data['web_site'])
