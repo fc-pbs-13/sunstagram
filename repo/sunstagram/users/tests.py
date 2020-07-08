@@ -66,7 +66,7 @@ class UserTestCase(APITestCase):
         self.assertNotEqual(entry.password, response.data['hashed_password'])
 
     def test_should_update_userprofile(self):
-        entry = UserProfile.objects.get(id=self.test_user.id)
+        entry = UserProfile.objects.get(user_id=self.test_user.id)
         Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
 
@@ -84,4 +84,3 @@ class UserTestCase(APITestCase):
         self.assertEqual(user_response.web_site, data['web_site'])
         self.assertEqual(user_response.intro, data['intro'])
         self.assertEqual(user_response.phone_number, data['phone_number'])
-        self.fail()
