@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
 
@@ -15,3 +16,6 @@ class PhotoViewSet(ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return [AllowAny()]
         return super().get_permissions()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
