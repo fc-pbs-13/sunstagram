@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from core.permissions import IsOwner
+from core.permissions import IsOwner, IsUserSelf
 from users.models import User
 from users.serializers import UserSerializer, PasswordSerializer
 
@@ -16,7 +16,7 @@ class UserViewSet(mixins.CreateModelMixin,
                   GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsOwner,]
+    permission_classes = [IsUserSelf, ]
 
     def get_serializer_class(self):
         if self.action == 'change_password':
@@ -26,8 +26,6 @@ class UserViewSet(mixins.CreateModelMixin,
     def get_permissions(self):
         if self.action in ('sign_in', 'create'):
             return [AllowAny()]
-        elif self.action in ('sign_out', 'update', 'retrieve', 'deactivate', 'change_password'):
-            return [IsOwner()]
         return super().get_permissions()
 
     @action(detail=True, methods=['PATCH'])
