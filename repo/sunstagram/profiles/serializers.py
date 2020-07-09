@@ -16,15 +16,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         username = user.pop('username')
 
         super().update(instance, validated_data)
-
-        #email 형식 검사
-        try:
-            email_name, domain_part = email.strip().rsplit('@', 1)
-        except ValueError:
-            pass
-        else:
-            email = email_name + '@' + domain_part.lower()
-            instance.user.email = email
+        instance.user.email = email
         instance.user.username = username
         instance.save()
         return instance

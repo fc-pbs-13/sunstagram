@@ -61,9 +61,8 @@ class UserTestCase(APITestCase):
                 'new_password': self.change_password,
                 'new_password2': self.change_password}
         response = self.client.patch(f'/api/users/{entry.id}/change_password', data=data)
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(entry.password, response.data['hashed_password'])
+        self.assertNotEqual(self.test_user.password, response.data['hashed_password'])
 
     def test_should_update_userprofile(self):
         entry = UserProfile.objects.get(user_id=self.test_user.id)

@@ -12,6 +12,7 @@ class UserProfileViewSet(mixins.RetrieveModelMixin,
                          GenericViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+
     permission_classes = [IsOwner, ]
 
     def get_permissions(self):
