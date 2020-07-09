@@ -6,8 +6,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'password', 'date_joined']
-        extra_kwargs = {'password': {'write_only': True},
-                        'date_joined': {'read_only': True}}
+        extra_kwargs = {'password': {'write_only': True}, }
+        read_only_fields = ('id', 'date_joined',)
 
 
 class PasswordSerializer(serializers.ModelSerializer):
@@ -23,3 +23,17 @@ class PasswordSerializer(serializers.ModelSerializer):
             'new_password': {'write_only': True},
             'new_password2': {'write_only': True},
         }
+
+    def validate(self, data):
+        raw_password = data.get('new_password')
+        raw_password2 = data.get('new_password2')
+        if raw_password != raw_password2:
+            raise serializers.ValidationError('Not matched password and password2')
+        return raw_password
+
+    def validate_password(self, value):
+        user = User.objects.get(id=self.context.get('request').user.id)
+        if user.password == value:
+            return value
+        else:
+            raise serializers.ValidationError('incorrect password')

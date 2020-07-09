@@ -27,7 +27,7 @@ class PhotoTestCase(APITestCase):
                 'photo_texts': 'for test',
                 'photo_images': test_image
         }
-        response = self.client.post('/api/photos', data=data)
+        response = self.client.post('/api/photos', data=data, content_type='multipart')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -35,4 +35,3 @@ class PhotoTestCase(APITestCase):
         self.assertTrue(photo_response.id)
         self.assertEqual(photo_response.photo_texts, data['photo_texts'])
         # self.assertEqual(photo_response.photo_images, data['photo_images'])
-        self.fail()

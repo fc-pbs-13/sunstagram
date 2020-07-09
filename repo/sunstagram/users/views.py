@@ -30,23 +30,14 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(detail=True, methods=['PATCH'])
     def change_password(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user = User.objects.get(id=request.user.id)
-        current_password = request.data.get('password')
-        password = request.data.get('new_password')
-        password2 = request.data.get('new_password')
-
-        if user.password == current_password:
-            if password == password2:
-                user.set_password(password)
-                user.save()
-                data = {"hashed_password": user.password}
-                return Response(data, status=status.HTTP_201_CREATED)
-            else:
-                data = {"message": "Not matched password and password2"}
-                return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-        data = {"message": "incorrect current_password"}
-        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        new_password = serializer.validated_data
+        user.password = new_password
+        user.save()
+        data = {"hashed_password": user.password}
+        return Response(data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['POST'])
     def sign_in(self, request):
