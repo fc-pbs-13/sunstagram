@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from core.permissions import IsOwner, IsUserSelf
+from core.permissions import IsUserSelf
 from users.models import User
 from users.serializers import UserSerializer, PasswordSerializer
 
