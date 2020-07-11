@@ -21,7 +21,7 @@ class PhotoFactory(Factory):
     class Meta:
         model = Photo
 
-    photo_images = factory.django.ImageField(width=1)
+    photo_images = factory.django.ImageField()
     # def create_test_image(self):
     #     image = Image.new('RGB', (1, 1))
     #     tmp_file = tempfile.NamedTemporaryFile(suffix='.jpg')

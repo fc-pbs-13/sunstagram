@@ -9,8 +9,8 @@ from users.models import User
 
 class UserTestCase(APITestCase):
     def setUp(self):
-        self.test_password = 1234
-        self.change_password = 2345
+        self.test_password = '1234'
+        self.change_password = '2345'
         self.test_user = User.objects.create(email='test@example.com',
                                              password=self.test_password,
                                              username='test')
@@ -56,13 +56,12 @@ class UserTestCase(APITestCase):
         entry = User.objects.get(id=self.test_user.id)
         Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
-
-        data = {'password': self.test_user.password,
+        data = {'password': self.test_password,
                 'new_password': self.change_password,
                 'new_password2': self.change_password}
+
         response = self.client.patch(f'/api/users/{entry.id}/change_password', data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(self.test_user.password, response.data['hashed_password'])
 
     def test_should_update_userprofile(self):
         entry = UserProfile.objects.get(user_id=self.test_user.id)

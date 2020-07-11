@@ -52,9 +52,9 @@ class User(AbstractUser):
         return self.email
 
     def save(self, *args, **kwargs):
-        self.set_password(self.password)
 
-        if self.pk is None:
+        if self.id is None:
+            self.set_password(self.password)
             super().save(*args, **kwargs)
             UserProfile.objects.create(user=self)
         else:
