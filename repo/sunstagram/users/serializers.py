@@ -29,11 +29,18 @@ class PasswordSerializer(serializers.ModelSerializer):
         raw_password2 = data.get('new_password2')
         if raw_password != raw_password2:
             raise serializers.ValidationError('Not matched password and password2')
-        return raw_password
+        return data
 
     def validate_password(self, value):
         user = User.objects.get(id=self.context.get('request').user.id)
-        if user.password == value:
+        if user.check_password(value):
             return value
         else:
             raise serializers.ValidationError('incorrect password')
+
+    def update(self, instance, validated_data):
+        instance.password = validated_data['new_password']
+        instance.set_password(instance.password)
+        instance.save()
+        return instance
+

@@ -30,14 +30,11 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(detail=True, methods=['PATCH'])
     def change_password(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = User.objects.get(id=request.user.id)
-        new_password = serializer.validated_data
-        user.password = new_password
-        user.save()
-        data = {"hashed_password": user.password}
-        return Response(data, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['POST'])
     def sign_in(self, request):
