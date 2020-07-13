@@ -1,16 +1,15 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
+from core.permissions import IsOwnerOrReadOnly
+from feeds.models import Post
+from feeds.serializers import PostSerializer
+from profiles.models import UserProfile
 
-from core.permissions import IsOwner
-from feeds.models import Photo
-from feeds.serializers import PhotoSerializer
 
-
-class PhotoViewSet(ModelViewSet):
-    queryset = Photo.objects.all()
-    serializer_class = PhotoSerializer
-    permission_classes = [IsOwner, ]
+class PostViewSet(ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsOwnerOrReadOnly, ]
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
@@ -18,4 +17,4 @@ class PhotoViewSet(ModelViewSet):
         return super().get_permissions()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(user_profile=UserProfile.objects.get(user=self.request.user))

@@ -1,4 +1,6 @@
+import factory
 from django.db import models
+from factory import Factory
 
 
 class UserProfile(models.Model):
@@ -7,3 +9,10 @@ class UserProfile(models.Model):
     web_site = models.URLField(max_length=100, default='')
     intro = models.CharField(max_length=255, default='')
     phone_number = models.CharField(max_length=30, default='')
+
+
+class ProfileFactory(Factory):
+    profile_image = factory.django.ImageField()
+
+    class Meta:
+        model = UserProfile

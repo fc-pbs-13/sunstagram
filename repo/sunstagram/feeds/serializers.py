@@ -1,13 +1,40 @@
+from munch import Munch
 from rest_framework import serializers
 
-from feeds.models import Photo
+from feeds.models import Post
 
 
-class PhotoSerializer(serializers.ModelSerializer):
-    photo_images = serializers.ListField(child=serializers.ImageField(), write_only=True)
-    _images = serializers.ListField(child=serializers.ImageField(use_url=True), source='photo_images', read_only=True)
+class PostSerializer(serializers.ModelSerializer):
+    owner = serializers.CharField(source='user_profiles.user.username', read_only=True)
+    profile_image = serializers.ImageField(source='user_profiles.profile_image', read_only=True)
 
     class Meta:
-        model = Photo
-        fields = ['id', 'user', 'photo_images', 'photo_texts', '_images']
-        read_only_fields = ('user', )
+        model = Post
+        fields = ['id',
+                  'owner',
+                  'profile_image',
+                  'post_text',
+                  'image_name',
+                  'time_stamp',
+                  'origin_image',
+                  'thumbnail_image']
+        read_only_fields = ('id',
+                            'owner',
+                            'profile_image',
+                            'time_stamp',
+                            'image_name',
+                            'thumbnail_image')
+
+    def create(self, validated_data):
+        print('serializer-create!')
+        print(validated_data)
+        upload_image = self.context['request'].FILES
+
+        print(upload_image)
+        instance = Post.objects.create(**validated_data)
+
+        return instance
+
+
+
+
