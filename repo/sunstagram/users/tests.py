@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from profiles.models import UserProfile
+from profiles.models import UserProfile, ProfileFactory
 from users.models import User
 
 
@@ -14,6 +14,7 @@ class UserTestCase(APITestCase):
         self.test_user = User.objects.create(email='test@example.com',
                                              password=self.test_password,
                                              username='test')
+        self.test_profile_image = ProfileFactory().profile_image
 
     def test_should_create_user(self):
         data = {'email': 'newemail@example.com', 'username': 'new_user', 'password': self.test_password}
@@ -71,9 +72,10 @@ class UserTestCase(APITestCase):
         data = {'email': 'changed@example.com',
                 'username': 'changed',
                 'web_site': 'https://www.google.com',
+                'profile_image': self.test_profile_image,
                 'intro': 'test intro',
                 'phone_number': '010-1234-5678'}
-        response = self.client.put(f'/api/profile/{entry.id}', data=data)
+        response = self.client.put(f'/api/profile/{entry.id}', data=data, format='multipart')
 
         user_response = Munch(response.data)
         self.assertEqual(user_response.email, data['email'])
@@ -81,3 +83,4 @@ class UserTestCase(APITestCase):
         self.assertEqual(user_response.web_site, data['web_site'])
         self.assertEqual(user_response.intro, data['intro'])
         self.assertEqual(user_response.phone_number, data['phone_number'])
+        self.assertEqual(user_response.profile_image, 'http://testserver/profile_images/example.jpg')
