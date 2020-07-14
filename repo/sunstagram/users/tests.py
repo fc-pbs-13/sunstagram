@@ -83,4 +83,4 @@ class UserTestCase(APITestCase):
         self.assertEqual(user_response.web_site, data['web_site'])
         self.assertEqual(user_response.intro, data['intro'])
         self.assertEqual(user_response.phone_number, data['phone_number'])
-        self.assertEqual(user_response.profile_image, 'http://testserver/profile_images/example.jpg')
+        self.assertNotEqual(user_response.profile_image, 'http://testserver/profile_images/default.jpg')
