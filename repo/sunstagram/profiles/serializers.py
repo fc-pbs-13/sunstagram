@@ -20,3 +20,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.user.username = username
         instance.save()
         return instance
+
+
+class PostingProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'username', 'profile_image']
