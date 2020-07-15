@@ -16,12 +16,14 @@ class PostSerializer(serializers.ModelSerializer):
                   'profile_image',
                   'post_text',
                   'time_stamp',
-                  'images']
+                  'images',
+                  'like_count']
         read_only_fields = ('id',
                             'owner',
                             'profile_image',
                             'time_stamp',
-                            'images')
+                            'images',
+                            'like_count')
 
 
 
