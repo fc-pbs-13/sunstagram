@@ -9,6 +9,8 @@ class UserProfile(models.Model):
     web_site = models.URLField(max_length=100, default='')
     intro = models.CharField(max_length=255, default='')
     phone_number = models.CharField(max_length=30, default='')
+    following_count = models.PositiveIntegerField(default=0)
+    follower_count = models.PositiveIntegerField(default=0)
 
 
 class ProfileFactory(Factory):

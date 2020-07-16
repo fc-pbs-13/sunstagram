@@ -27,4 +27,5 @@ class PostingProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'username', 'profile_image']
+        fields = ['id', 'username', 'profile_image', 'following_count', 'follower_count']
+

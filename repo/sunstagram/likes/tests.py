@@ -39,7 +39,6 @@ class LikesTestCase(APITestCase):
         self.client.force_authenticate(user=self.test_user)
         PostLike.objects.create(post=self.test_posts[0], user=self.test_user)
 
-        # Key (user_id, post_id)=(1, 1) already exists.
         response = self.client.post(f'/api/posts/{self.test_posts[0].id}/post_likes')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
