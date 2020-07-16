@@ -132,10 +132,13 @@ class LikesTestCase(APITestCase):
 
     def test_should_create_reply_like(self):
         self.client.force_authenticate(user=self.test_user)
+        entry = Reply.objects.create(user=self.test_user,
+                                     comment=self.test_comments[0],
+                                     reply_text='for test')
         response = self.client.post(
             f'/api/posts/{self.test_posts[0].id}/'
             f'comments/{self.test_comments[0].id}/'
-            f'replies/{self.test_replies[0].id}/reply_likes')
+            f'replies/{entry.id}/reply_likes')
 
         like_response = Munch(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
