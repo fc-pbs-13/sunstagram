@@ -92,7 +92,6 @@ class LikesTestCase(APITestCase):
         self.client.force_authenticate(user=self.test_user)
         CommentLike.objects.create(comment=self.test_comments[0], user=self.test_user)
 
-        # Key (user_id, comment_id)=(1, 1) already exists.
         response = self.client.post(f'/api/comments/{self.test_comments[0].id}/comment_likes')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -112,7 +111,6 @@ class LikesTestCase(APITestCase):
         response = self.client.get(f'/api/comments/{self.test_comments[0].id}/comment_likes')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
         self.assertEqual(like_2.id, response.data[0]['id'])
         self.assertEqual(like_2.user_id, response.data[0]['user']['id'])
         self.assertEqual(like_2.user.username, response.data[0]['user']['username'])
@@ -141,7 +139,7 @@ class LikesTestCase(APITestCase):
             f'replies/{entry.id}/reply_likes')
 
         like_response = Munch(response.data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(like_response.id)
         self.assertEqual(Reply.objects.get(id=like_response.reply).like_count, 1)
         self.assertEqual(like_response.user['id'], self.test_user.id)
@@ -152,7 +150,6 @@ class LikesTestCase(APITestCase):
         self.client.force_authenticate(user=self.test_user)
         ReplyLike.objects.create(reply=self.test_replies[0], user=self.test_user)
 
-        # Key (user_id, reply_id)=(1, 1) already exists.
         response = self.client.post(
             f'/api/posts/{self.test_posts[0].id}/'
             f'comments/{self.test_comments[0].id}/'
@@ -181,7 +178,6 @@ class LikesTestCase(APITestCase):
             f'replies/{self.test_replies[0].id}/reply_likes')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(*response.data)
         self.assertEqual(like_2.id, response.data[0]['id'])
         self.assertEqual(like_2.user_id, response.data[0]['user']['id'])
         self.assertEqual(like_2.user.username, response.data[0]['user']['username'])

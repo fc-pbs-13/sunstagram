@@ -15,6 +15,13 @@ class PostLikeSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'post']
         read_only_fields = ('id', 'user', 'post')
 
+    def validate(self, attrs):
+        if PostLike.objects.filter(user=self.context['request'].user,
+                                   post=self.context['view'].kwargs['post_pk']).exists():
+            raise serializers.ValidationError('The fields `user`, `reply` must make a unique set.',
+                                              code='unique')
+        return super().validate(attrs)
+
 
 class CommentLikeSerializer(serializers.ModelSerializer):
     user = PostingProfileSerializer(source='user.userprofile', read_only=True)
@@ -23,6 +30,13 @@ class CommentLikeSerializer(serializers.ModelSerializer):
         model = CommentLike
         fields = ['id', 'user', 'comment']
         read_only_fields = ('id', 'user', 'comment')
+
+    def validate(self, attrs):
+        if CommentLike.objects.filter(user=self.context['request'].user,
+                                      comment=self.context['view'].kwargs['comment_pk']).exists():
+            raise serializers.ValidationError('The fields `user`, `reply` must make a unique set.',
+                                              code='unique')
+        return super().validate(attrs)
 
 
 class ReplyLikeSerializer(serializers.ModelSerializer):
@@ -33,11 +47,9 @@ class ReplyLikeSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'reply']
         read_only_fields = ('id', 'user', 'reply')
 
-        # 이거 넣으면 duplicate test에서 400 error를 리턴하지만,
-        # create test에서도 400 error를 리턴, serializer.instance가 왜 none인지..
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=ReplyLike.objects.all(),
-        #         fields=['user', 'reply']
-        #     )
-        # ]
+    def validate(self, attrs):
+        if ReplyLike.objects.filter(user=self.context['request'].user,
+                                    reply=self.context['view'].kwargs['reply_pk']).exists():
+            raise serializers.ValidationError('The fields `user`, `reply` must make a unique set.',
+                                              code='unique')
+        return super().validate(attrs)

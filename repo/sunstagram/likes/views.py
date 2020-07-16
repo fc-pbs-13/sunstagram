@@ -71,6 +71,9 @@ class ReplyLikeViewSet(mixins.CreateModelMixin,
     serializer_class = ReplyLikeSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
     def filter_queryset(self, queryset):
         if self.action == 'destroy':
             return super().filter_queryset(queryset)
