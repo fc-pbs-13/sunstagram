@@ -5,7 +5,7 @@ from rest_framework_nested import routers
 
 from comments.views import CommentViewSet
 from feeds.views import PostViewSet
-from likes.views import PostLikeViewSet
+from likes.views import PostLikeViewSet, CommentLikeViewSet, ReplyLikeViewSet
 from photos.views import PhotoViewSet
 from replies.views import ReplyViewSet
 from users.views import UserViewSet
@@ -19,6 +19,8 @@ router.register(r'photos', PhotoViewSet)
 router.register(r'comments', CommentViewSet)
 router.register(r'replies', ReplyViewSet)
 router.register(r'post_likes', PostLikeViewSet)
+router.register(r'comment_likes', CommentLikeViewSet)
+router.register(r'reply_likes', ReplyLikeViewSet)
 
 
 """
@@ -49,15 +51,26 @@ posts_router.register(r'post_likes', PostLikeViewSet)
 
 """
 comments/123/replies/456
+comments/123/comment_likes/456
 """
 comments_router = routers.NestedSimpleRouter(router, r'comments', lookup='comment')
 comments_router.register(r'replies', ReplyViewSet)
+comments_router.register(r'comment_likes', CommentLikeViewSet)
 
 """
 posts/123/comments/456/replies/789
+posts/123/comments/456/comment_likes/789
 """
 posts_comments_router = routers.NestedSimpleRouter(posts_router, r'comments', lookup='comment')
 posts_comments_router.register(r'replies', ReplyViewSet)
+posts_comments_router.register(r'comment_likes', CommentLikeViewSet)
+
+"""
+posts/12/comments/34/replies/56/reply_likes/78
+"""
+replies_likes_router = routers.NestedSimpleRouter(posts_comments_router, r'replies', lookup='reply')
+replies_likes_router.register(r'reply_likes', ReplyLikeViewSet)
+
 
 urlpatterns = [
     url(r'^', include(router.urls)),
@@ -66,4 +79,5 @@ urlpatterns = [
     url(r'^', include(posts_router.urls)),
     url(r'^', include(comments_router.urls)),
     url(r'^', include(posts_comments_router.urls)),
+    url(r'^', include(replies_likes_router.urls)),
 ]

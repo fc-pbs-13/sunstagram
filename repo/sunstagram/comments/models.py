@@ -7,6 +7,7 @@ class Comment(models.Model):
     comment_text = models.CharField(max_length=255)
     time_stamp = models.DateTimeField(auto_now_add=True)
     reply_count = models.PositiveIntegerField(default=0)
+    like_count = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['-id']
