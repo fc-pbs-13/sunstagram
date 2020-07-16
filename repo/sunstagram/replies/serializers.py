@@ -9,6 +9,6 @@ class ReplySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reply
-        fields = ['id', 'reply_text', 'time_stamp', 'user']
-        read_only_fields = ('id', 'time_stamp', 'user')
+        fields = ['id', 'reply_text', 'time_stamp', 'user', 'like_count']
+        read_only_fields = ('id', 'time_stamp', 'user', 'like_count')
 
