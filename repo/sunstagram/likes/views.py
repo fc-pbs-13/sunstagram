@@ -20,21 +20,13 @@ class PostLikeViewSet(mixins.CreateModelMixin,
     permission_classes = [IsOwnerOrReadOnly, ]
 
     def filter_queryset(self, queryset):
-        if self.action == 'destroy':
-            return super().filter_queryset(queryset)
-        elif self.kwargs.get('post_pk'):
+        if self.action == 'list':
             queryset = queryset.filter(post_id=self.kwargs['post_pk'])
-            return super().filter_queryset(queryset)
-        else:
-            raise ValueError
+        return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, id=self.kwargs.get('post_pk'))
         serializer.save(user=self.request.user, post=post)
-
-    def perform_destroy(self, instance):
-        Post.objects.filter(id=instance.post.id).update(like_count=F('like_count') - 1)
-        instance.delete()
 
 
 class CommentLikeViewSet(mixins.CreateModelMixin,
@@ -46,21 +38,13 @@ class CommentLikeViewSet(mixins.CreateModelMixin,
     permission_classes = [IsOwnerOrReadOnly, ]
 
     def filter_queryset(self, queryset):
-        if self.action == 'destroy':
-            return super().filter_queryset(queryset)
-        elif self.kwargs.get('comment_pk'):
+        if self.action == 'list':
             queryset = queryset.filter(comment_id=self.kwargs['comment_pk'])
-            return super().filter_queryset(queryset)
-        else:
-            raise ValueError
+        return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
         comment = get_object_or_404(Comment, id=self.kwargs.get('comment_pk'))
         serializer.save(user=self.request.user, comment=comment)
-
-    def perform_destroy(self, instance):
-        Comment.objects.filter(id=instance.comment.id).update(like_count=F('like_count') - 1)
-        instance.delete()
 
 
 class ReplyLikeViewSet(mixins.CreateModelMixin,
@@ -72,18 +56,10 @@ class ReplyLikeViewSet(mixins.CreateModelMixin,
     permission_classes = [IsOwnerOrReadOnly, ]
 
     def filter_queryset(self, queryset):
-        if self.action == 'destroy':
-            return super().filter_queryset(queryset)
-        elif self.kwargs.get('reply_pk'):
+        if self.action == 'list':
             queryset = queryset.filter(reply_id=self.kwargs['reply_pk'])
-            return super().filter_queryset(queryset)
-        else:
-            raise ValueError
+        return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
         reply = get_object_or_404(Reply, id=self.kwargs.get('reply_pk'))
         serializer.save(user=self.request.user, reply=reply)
-
-    def perform_destroy(self, instance):
-        Reply.objects.filter(id=instance.reply.id).update(like_count=F('like_count') - 1)
-        instance.delete()

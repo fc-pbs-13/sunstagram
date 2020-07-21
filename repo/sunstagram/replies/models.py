@@ -12,5 +12,9 @@ class Reply(models.Model):
     like_count = models.PositiveIntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
         Comment.objects.filter(id=self.comment.id).update(reply_count=F('reply_count') + 1)
-        return super().save()
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        Comment.objects.filter(id=self.comment.id).update(like_count=F('reply_count') - 1)

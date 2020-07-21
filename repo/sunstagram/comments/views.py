@@ -18,13 +18,9 @@ class CommentViewSet(mixins.CreateModelMixin,
     permission_classes = [IsOwnerOrReadOnly, ]
 
     def filter_queryset(self, queryset):
-        if self.action == 'destroy':
-            return super().filter_queryset(queryset)
-        elif self.kwargs.get('post_pk'):
-            queryset = queryset.filter(post_id=self.kwargs['post_pk'])
-            return super().filter_queryset(queryset)
-        else:
-            raise ValueError
+        if self.action == 'list':
+            queryset = queryset.filter(post_id=self.kwargs.get('comment_pk'))
+        return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, id=self.kwargs.get('post_pk'))

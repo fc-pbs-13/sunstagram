@@ -16,10 +16,6 @@ class CommentTestCase(APITestCase):
                                         user=self.test_user,
                                         _quantity=2)
         self.comment = self.test_comments[0]
-        self.test_replies = baker.make('replies.Reply',
-                                       user=self.test_user,
-                                       comment=self.comment,
-                                       _quantity=2)
 
     def test_should_create_comment(self):
         self.client.force_authenticate(user=self.test_user)
@@ -38,12 +34,13 @@ class CommentTestCase(APITestCase):
 
     def test_should_list_comments(self):
         response = self.client.get(f'/api/posts/{self.test_post.id}/comments')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(Comment.objects.all().count(), 2)
         for comment, comment_response in zip(self.test_comments[::-1], response.data):
             self.assertEqual(comment.id, comment_response['id'])
             self.assertEqual(comment.comment_text, comment_response['comment_text'])
-            self.assertEqual(comment.user.username, self.test_user.username)
+            self.assertEqual(comment.user.username, comment_response['user']['username'])
             self.assertEqual(comment.user.userprofile.profile_image, 'profile_images/default.jpg')
 
     def test_should_update_comment(self):
@@ -66,6 +63,21 @@ class CommentTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Comment.objects.filter(id=self.comment.id).exists())
 
+
+class ReplyTestCase(APITestCase):
+    def setUp(self):
+        self.test_user = baker.make('users.User', username='test')
+        self.test_post = baker.make('feeds.Post', user=self.test_user)
+        self.test_comments = baker.make('comments.Comment',
+                                        post=self.test_post,
+                                        user=self.test_user,
+                                        _quantity=2)
+        self.comment = self.test_comments[0]
+        self.test_replies = baker.make('replies.Reply',
+                                       user=self.test_user,
+                                       comment=self.comment,
+                                       _quantity=2)
+
     def test_should_create_reply(self):
         self.client.force_authenticate(user=self.test_user)
         data = {'reply_text': 'for test'}
@@ -82,6 +94,7 @@ class CommentTestCase(APITestCase):
     def test_should_list_replies(self):
         response = self.client.get(f'/api/comments/{self.comment.id}/replies')
 
+        self.assertEqual(Reply.objects.all().count(), 2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for reply, reply_response in zip(self.test_replies, response.data):
             self.assertEqual(reply.id, reply_response['id'])

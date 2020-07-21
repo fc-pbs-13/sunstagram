@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_extensions',
     'core',
     'users',
     'profiles',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'replies',
     'likes',
     'follows',
+    'stories',
 ]
 
 MIDDLEWARE = [
