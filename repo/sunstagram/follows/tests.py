@@ -5,15 +5,17 @@ from rest_framework.test import APITestCase
 
 from follows.models import Follow
 from profiles.models import UserProfile
+from users.models import User
 
 
 class FollowTestCase(APITestCase):
     def setUp(self):
-        self.test_users = baker.make('users.User', _quantity=3)
+        self.test_users = baker.make('users.User', _quantity=2)
         self.follower = self.test_users[0]
         self.following = self.test_users[1]
         self.follower_profile = UserProfile.objects.get(user_id=self.follower.id)
         self.following_profile = UserProfile.objects.get(user_id=self.following.id)
+        self.expected_count = 2
 
     def test_should_create_following(self):
         self.client.force_authenticate(user=self.follower)
@@ -21,13 +23,11 @@ class FollowTestCase(APITestCase):
 
         follow_response = Munch(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
         self.assertTrue(follow_response.id)
         self.assertEqual(follow_response.follower, self.follower.id)
         self.assertEqual(follow_response.following, self.following.id)
         self.assertEqual(follow_response.user['id'], self.follower.id)
         self.assertEqual(follow_response.user['username'], self.follower.username)
-        self.assertEqual(follow_response.user['profile_image'], 'http://testserver/profile_images/default.jpg')
         self.assertEqual(UserProfile.objects.get(user_id=self.follower.id).following_count, 1)
         self.assertEqual(UserProfile.objects.get(user_id=self.follower.id).follower_count, 0)
         self.assertEqual(UserProfile.objects.get(user_id=self.following.id).following_count, 0)
@@ -51,26 +51,32 @@ class FollowTestCase(APITestCase):
         self.assertEqual(UserProfile.objects.get(user_id=self.follower.id).following_count, 0)
         self.assertEqual(UserProfile.objects.get(user_id=self.following.id).follower_count, 0)
 
-    def test_should_list_follow(self):
-        new_follower = self.test_users[2]
-        entry_1 = Follow.objects.create(follower=self.follower, following=self.following)
-        entry_2 = Follow.objects.create(follower=new_follower, following=self.following)
+    def test_should_list_following(self):
+        test_follows = baker.make('follows.Follow', _quantity=2, following=self.following)
 
-        response = self.client.get(f'/api/users/{self.following.id}/follows')
+        response = self.client.get(f'/api/users/{self.following.id}/following')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Follow.objects.filter(following=self.following).count(), self.expected_count)
+        self.assertEqual(User.objects.filter(followers__following=self.following).count(), self.expected_count)
 
-        self.assertEqual(response.data[0]['user']['id'], self.follower.id)
-        self.assertEqual(response.data[0]['user']['username'], self.follower.username)
-        self.assertEqual(response.data[0]['user']['profile_image'], 'http://testserver/profile_images/default.jpg')
+        for entry, response_entry in zip(test_follows, response.data):
+            response_follower = User.objects.get(id=response_entry['id'])
+            self.assertEqual(entry.follower.id, response_entry['id'])
+            self.assertEqual(entry.follower.username, response_follower.username)
+            self.assertEqual(response_follower.userprofile.following_count, 1)
+            self.assertEqual(response_follower.userprofile.follower_count, 0)
 
-        self.assertEqual(entry_1.id, response.data[0]['id'])
-        self.assertEqual(entry_1.follower.id, response.data[0]['follower'])
-        self.assertEqual(entry_1.following.id, response.data[0]['following'])
-        self.assertEqual(UserProfile.objects.get(user_id=self.follower.id).following_count, 1)
+    def test_should_list_followers(self):
+        test_follows = baker.make('follows.Follow', _quantity=2, follower=self.follower)
 
-        self.assertEqual(entry_2.id, response.data[1]['id'])
-        self.assertEqual(entry_2.follower.id, response.data[1]['follower'])
-        self.assertEqual(entry_2.following.id, response.data[1]['following'])
-        self.assertEqual(UserProfile.objects.get(user_id=new_follower.id).following_count, 1)
+        response = self.client.get(f'/api/users/{self.follower.id}/followers')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Follow.objects.filter(follower=self.follower).count(), self.expected_count)
+        self.assertEqual(User.objects.filter(followings__follower=self.follower).count(), self.expected_count)
 
-        self.assertEqual(UserProfile.objects.get(user_id=self.following.id).follower_count, 2)
+        for entry, response_entry in zip(test_follows, response.data):
+            response_following = User.objects.get(id=response_entry['id'])
+            self.assertEqual(entry.following.id, response_entry['id'])
+            self.assertEqual(entry.following.username, response_following.username)
+            self.assertEqual(response_following.userprofile.follower_count, 1)
+            self.assertEqual(response_following.userprofile.following_count, 0)

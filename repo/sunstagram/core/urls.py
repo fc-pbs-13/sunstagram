@@ -9,6 +9,7 @@ from follows.views import FollowViewSet
 from likes.views import PostLikeViewSet, CommentLikeViewSet, ReplyLikeViewSet
 from photos.views import PhotoViewSet
 from replies.views import ReplyViewSet
+from stories.views import StoryViewSet
 from users.views import UserViewSet
 from profiles.views import UserProfileViewSet
 
@@ -23,6 +24,7 @@ router.register(r'post_likes', PostLikeViewSet)
 router.register(r'comment_likes', CommentLikeViewSet)
 router.register(r'reply_likes', ReplyLikeViewSet)
 router.register(r'follows', FollowViewSet)
+router.register(r'stories', StoryViewSet)
 
 
 """
@@ -30,12 +32,17 @@ users/123/posts/456
 users/123/photos/456
 users/123/profile/456
 users/123/follows/456
+users/123/stories/456
+users/123/following
+users/123/followers
+users/123/stories
 """
 users_router = routers.NestedSimpleRouter(router, 'users', lookup='user')
 users_router.register(r'posts', PostViewSet)
 users_router.register(r'photos', PhotoViewSet)
 users_router.register(r'profile', UserProfileViewSet)
 users_router.register(r'follows', FollowViewSet)
+users_router.register(r'stories', StoryViewSet)
 
 """
 users/123/posts/456/photos/789

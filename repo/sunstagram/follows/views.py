@@ -12,7 +12,6 @@ from users.models import User
 
 class FollowViewSet(mixins.CreateModelMixin,
                     mixins.DestroyModelMixin,
-                    mixins.ListModelMixin,
                     GenericViewSet):
     """
     url - post : users/12/follows (request.user following user_12)
@@ -23,20 +22,9 @@ class FollowViewSet(mixins.CreateModelMixin,
     serializer_class = FollowSerializer
     permission_classes = [IsFollowerSelfOrReadOnly, ]
 
-    def filter_queryset(self, queryset):
-        if self.action == 'destroy':
-            return super().filter_queryset(queryset)
-        elif self.kwargs.get('user_pk'):
-            queryset = queryset.filter(following_id=self.kwargs['user_pk'])
-            return super().filter_queryset(queryset)
-        else:
-            raise ValueError
-
     def perform_create(self, serializer):
         following = get_object_or_404(User, id=self.kwargs.get('user_pk'))
         serializer.save(follower=self.request.user, following=following)
 
-    def perform_destroy(self, instance):
-        UserProfile.objects.filter(user_id=instance.follower.id).update(following_count=F('following_count') - 1)
-        UserProfile.objects.filter(user_id=instance.following.id).update(follower_count=F('follower_count') - 1)
-        instance.delete()
+
+

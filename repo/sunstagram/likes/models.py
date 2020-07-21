@@ -15,11 +15,12 @@ class PostLike(models.Model):
         unique_together = ['user', 'post']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if self.id is None:
-            Post.objects.filter(id=self.post.id).update(like_count=F('like_count') + 1)
-        else:
-            raise ValueError
-        return super().save()
+        super().save(force_insert, force_update, using, update_fields)
+        Post.objects.filter(id=self.post.id).update(like_count=F('like_count') + 1)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        Post.objects.filter(id=self.post.id).update(like_count=F('like_count') - 1)
 
 
 class CommentLike(models.Model):
@@ -31,11 +32,12 @@ class CommentLike(models.Model):
         unique_together = ['user', 'comment']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if self.id is None:
-            Comment.objects.filter(id=self.comment.id).update(like_count=F('like_count') + 1)
-        else:
-            raise ValueError
-        return super().save()
+        super().save(force_insert, force_update, using, update_fields)
+        Comment.objects.filter(id=self.comment.id).update(like_count=F('like_count') + 1)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        Comment.objects.filter(id=self.comment.id).update(like_count=F('like_count') - 1)
 
 
 class ReplyLike(models.Model):
@@ -47,8 +49,9 @@ class ReplyLike(models.Model):
         unique_together = ['user', 'reply']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if self.id is None:
-            Reply.objects.filter(id=self.reply.id).update(like_count=F('like_count') + 1)
-        else:
-            raise ValueError
-        return super().save()
+        super().save(force_insert, force_update, using, update_fields)
+        Reply.objects.filter(id=self.reply.id).update(like_count=F('like_count') + 1)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        Reply.objects.filter(id=self.reply.id).update(like_count=F('like_count') - 1)

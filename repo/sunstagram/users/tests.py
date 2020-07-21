@@ -47,6 +47,7 @@ class UserTestCase(APITestCase):
 
     def test_should_delete_user(self):
         self.client.force_authenticate(user=self.test_user)
+
         entry = User.objects.get(id=self.test_user.id)
         response = self.client.delete(f'/api/users/{entry.id}/deactivate')
 
