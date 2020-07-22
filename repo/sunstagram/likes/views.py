@@ -21,7 +21,7 @@ class PostLikeViewSet(mixins.CreateModelMixin,
 
     def filter_queryset(self, queryset):
         if self.action == 'list':
-            queryset = queryset.filter(post_id=self.kwargs['post_pk'])
+            queryset = queryset.filter(post_id=self.kwargs.get('post_pk'))
         return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
@@ -39,7 +39,7 @@ class CommentLikeViewSet(mixins.CreateModelMixin,
 
     def filter_queryset(self, queryset):
         if self.action == 'list':
-            queryset = queryset.filter(comment_id=self.kwargs['comment_pk'])
+            queryset = queryset.filter(comment_id=self.kwargs.get('comment_pk'))
         return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
@@ -57,7 +57,7 @@ class ReplyLikeViewSet(mixins.CreateModelMixin,
 
     def filter_queryset(self, queryset):
         if self.action == 'list':
-            queryset = queryset.filter(reply_id=self.kwargs['reply_pk'])
+            queryset = queryset.filter(reply_id=self.kwargs.get('reply_pk'))
         return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):
