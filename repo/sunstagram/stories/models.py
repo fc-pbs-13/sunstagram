@@ -14,7 +14,7 @@ class Story(models.Model):
 
     def was_created_in_24hours(self):
         now = timezone.now()
-        return (now - datetime.timedelta(days=1)) <= self.time_stamp <= now
+        return now - datetime.timedelta(days=1) <= self.time_stamp <= now
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.image_name = self.story_image.name

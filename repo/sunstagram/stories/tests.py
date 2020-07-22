@@ -1,5 +1,7 @@
+import datetime
 import io
 
+from django.utils import timezone
 from model_bakery import baker
 from munch import Munch
 from rest_framework import status
@@ -66,14 +68,16 @@ class StoryTestCase(APITestCase):
         invalid_story = baker.make('stories.Story',
                                    user=self.test_users[0],
                                    story_image=self.temporary_image().name,
-                                   time_stamp='2020-07-19T11:19:15.369605Z')
+                                   time_stamp=(timezone.now() - datetime.timedelta(days=2)))
         response = self.client.get(f'/api/users/{self.test_users[0].id}/stories')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
-        self.assertEqual(response.data[0]['id'], self.valid_story.id)
-        self.assertEqual(response.data[0]['story_text'], self.valid_story.story_text)
-        self.assertTrue('.jpg' in response.data[0]['story_image'])
-        self.assertEqual(response.data[0]['user']['id'], self.valid_story.user.id)
+
+        for data in response.data:
+            self.assertEqual(data['id'], self.valid_story.id)
+            self.assertEqual(data['story_text'], self.valid_story.story_text)
+            self.assertTrue('.jpg' in data['story_image'])
+            self.assertEqual(data['user']['id'], self.valid_story.user.id)
 
     def test_should_list_only_followers_can_view(self):
         # follower : story owner를 following 하고 있는 유저
