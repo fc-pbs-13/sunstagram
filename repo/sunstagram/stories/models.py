@@ -25,5 +25,5 @@ class StoryViewCheck(models.Model):
     """
     Only story-owner's followings can view story
     """
-    story = models.ForeignKey('users.User', related_name='stories', on_delete=models.CASCADE)
+    story = models.ForeignKey('stories.Story', related_name='stories', on_delete=models.CASCADE)
     user = models.ForeignKey('users.User', related_name='story_viewers', on_delete=models.CASCADE)

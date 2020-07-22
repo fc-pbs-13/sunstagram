@@ -3,6 +3,7 @@ import io
 from model_bakery import baker
 from munch import Munch
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.test import APITestCase
 
 from PIL import Image
@@ -26,6 +27,9 @@ class StoryTestCase(APITestCase):
         self.test_follows = baker.make('follows.Follow', following=self.test_users[0], _quantity=2)
         self.image_name = 'test.jpg'
         self.data = {'story_text': 'for test', 'story_image': self.temporary_image()}
+        self.valid_story = baker.make('stories.Story',
+                                      user=self.test_users[0],
+                                      story_image=self.temporary_image().name)
 
     def test_should_create_story(self):
         self.client.force_authenticate(user=self.test_users[0])
@@ -41,12 +45,12 @@ class StoryTestCase(APITestCase):
         self.assertTrue('.jpg' in story_response.story_image)
 
     def test_should_list_new_stories_by_owner(self):
-        self.client.force_authenticate(user=self.test_users[0])
+        self.client.force_authenticate(user=self.test_users[1])
         stories = baker.make('stories.Story',
-                             user=self.test_users[0],
+                             user=self.test_users[1],
                              story_image=self.temporary_image().name,
                              _quantity=2)
-        response = self.client.get(f'/api/users/{self.test_users[0].id}/stories')
+        response = self.client.get(f'/api/users/{self.test_users[1].id}/stories')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
         for entry, response_entry in zip(stories, response.data):
@@ -58,9 +62,6 @@ class StoryTestCase(APITestCase):
 
     def test_should_list_only_created_less_then_24hours(self):
         self.client.force_authenticate(user=self.test_users[0])
-        valid_story = baker.make('stories.Story',
-                                 user=self.test_users[0],
-                                 story_image=self.temporary_image().name)
         # invalid_story : 하루 이상 지난 스토리
         invalid_story = baker.make('stories.Story',
                                    user=self.test_users[0],
@@ -69,15 +70,12 @@ class StoryTestCase(APITestCase):
         response = self.client.get(f'/api/users/{self.test_users[0].id}/stories')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
-        self.assertEqual(response.data[0]['id'], valid_story.id)
-        self.assertEqual(response.data[0]['story_text'], valid_story.story_text)
+        self.assertEqual(response.data[0]['id'], self.valid_story.id)
+        self.assertEqual(response.data[0]['story_text'], self.valid_story.story_text)
         self.assertTrue('.jpg' in response.data[0]['story_image'])
-        self.assertEqual(response.data[0]['user']['id'], valid_story.user.id)
+        self.assertEqual(response.data[0]['user']['id'], self.valid_story.user.id)
 
     def test_should_list_only_followers_can_view(self):
-        valid_story = baker.make('stories.Story',
-                                 user=self.test_users[0],
-                                 story_image=self.temporary_image().name)
         # follower : story owner를 following 하고 있는 유저
         follower = User.objects.get(id=self.test_follows[0].follower.id)
 
@@ -86,10 +84,10 @@ class StoryTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
         self.assertEqual(User.objects.filter(followings__follower=follower).count(), 1)
-        self.assertEqual(response.data[0]['id'], valid_story.id)
-        self.assertEqual(response.data[0]['story_text'], valid_story.story_text)
+        self.assertEqual(response.data[0]['id'], self.valid_story.id)
+        self.assertEqual(response.data[0]['story_text'], self.valid_story.story_text)
         self.assertTrue('.jpg' in response.data[0]['story_image'])
-        self.assertEqual(response.data[0]['user']['id'], valid_story.user.id)
+        self.assertEqual(response.data[0]['user']['id'], self.valid_story.user.id)
 
     def test_should_update_story(self):
         data = {'story_text': 'changed', 'story_image': self.temporary_image()}
@@ -119,18 +117,16 @@ class StoryTestCase(APITestCase):
         self.assertFalse(Story.objects.filter(id=entry.id).exists())
 
     def test_should_retrieve_story(self):
-        valid_story = baker.make('stories.Story',
-                                 user=self.test_users[0],
-                                 story_image=self.temporary_image().name)
         follower = User.objects.get(id=self.test_follows[0].follower.id)
         self.client.force_authenticate(user=follower)
 
-        response = self.client.get(f'/api/users/{self.test_users[0].id}/stories/{valid_story.id}')
+        response = self.client.get(f'/api/users/{self.test_users[0].id}/stories/{self.valid_story.id}')
 
-        self.assertEqual(StoryViewCheck.objects.filter(user=follower).count(), 1)
-        self.assertEqual(StoryViewCheck.objects.get(user=follower).story.id, valid_story.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
-        self.assertEqual(response.data['id'], valid_story.id)
-        self.assertEqual(response.data['story_text'], valid_story.story_text)
+        self.assertEqual(StoryViewCheck.objects.filter(user=follower).count(), 1)
+        self.assertEqual(StoryViewCheck.objects.get(user=follower).story.id, self.valid_story.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response)
+        self.assertEqual(response.data['id'], self.valid_story.id)
+        self.assertEqual(response.data['story_text'], self.valid_story.story_text)
         self.assertTrue('.jpg' in response.data['story_image'])
-        self.assertEqual(response.data['user']['id'], valid_story.user.id)
+        self.assertEqual(response.data['user']['id'], self.valid_story.user.id)
