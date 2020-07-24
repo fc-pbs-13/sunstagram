@@ -4,7 +4,7 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
 from comments.views import CommentViewSet
-from feeds.views import PostViewSet
+from feeds.views import PostViewSet, HashTagViewSet
 from follows.views import FollowViewSet
 from likes.views import PostLikeViewSet, CommentLikeViewSet, ReplyLikeViewSet
 from photos.views import PhotoViewSet
@@ -25,6 +25,7 @@ router.register(r'comment_likes', CommentLikeViewSet)
 router.register(r'reply_likes', ReplyLikeViewSet)
 router.register(r'follows', FollowViewSet)
 router.register(r'stories', StoryViewSet)
+router.register(r'tags', HashTagViewSet)
 
 
 """
@@ -54,11 +55,13 @@ users_posts_router.register(r'photos', PhotoViewSet)
 posts/123/photos/456
 posts/123/comments/456
 posts/123/post_likes/456
+posts/123/tags/456
 """
 posts_router = routers.NestedSimpleRouter(router, r'posts', lookup='post')
 posts_router.register(r'photos', PhotoViewSet)
 posts_router.register(r'comments', CommentViewSet)
 posts_router.register(r'post_likes', PostLikeViewSet)
+posts_router.register(r'tags', HashTagViewSet)
 
 """
 comments/123/replies/456

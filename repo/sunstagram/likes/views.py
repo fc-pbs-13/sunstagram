@@ -51,7 +51,7 @@ class ReplyLikeViewSet(mixins.CreateModelMixin,
                        mixins.DestroyModelMixin,
                        mixins.ListModelMixin,
                        GenericViewSet):
-    queryset = ReplyLike.objects.all()
+    queryset = ReplyLike.objects.all().select_related('user__userprofile')
     serializer_class = ReplyLikeSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 

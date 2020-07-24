@@ -1,14 +1,27 @@
 import datetime
+import io
 
+from PIL import Image
 from django.db import models
 from django.utils import timezone
 from uuid_upload_path import upload_to
 
 
+class ImageMaker:
+    @staticmethod
+    def temporary_image():
+        file = io.BytesIO()
+        image = Image.new('RGB', (1, 1))
+        image.save(file, 'jpeg')
+        file.name = 'test.jpg'
+        file.seek(0)
+        return file
+
+
 class Story(models.Model):
     user = models.ForeignKey('users.User', related_name='story_owners', on_delete=models.CASCADE)
     story_text = models.CharField(max_length=255, default='')
-    time_stamp = models.DateTimeField(default=timezone.now)
+    time_stamp = models.DateTimeField(default=timezone.now, editable=False)
     story_image = models.ImageField(upload_to=upload_to)  # generate uuid path
     image_name = models.CharField(max_length=50)
 

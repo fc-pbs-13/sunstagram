@@ -5,8 +5,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
 from feeds.models import Post
-from photos.models import PhotoFactory, Photo
+from photos.models import Photo
 from profiles.models import UserProfile, ProfileFactory
+from stories.models import ImageMaker
 from users.models import User
 
 
@@ -18,14 +19,13 @@ class PostTestCase(APITestCase):
                                              username='test')
         self.test_post = baker.make('feeds.Post', user=self.test_user, post_text='for test')
         self.test_profile = UserProfile.objects.get(user=self.test_user)
-        self.test_image = PhotoFactory().photo_images
-        self.test_image2 = PhotoFactory().photo_images
+        self.test_image = ImageMaker.temporary_image()
+        self.test_image2 = ImageMaker.temporary_image()
         self.test_profile_image = ProfileFactory().profile_image
 
     def test_should_create_post(self):
-        Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
-        data = {'post_text': 'for test'}
+        data = {'post_text': 'for test', 'tag': [{'name': {'cat', 'dog'}}]}
 
         response = self.client.post('/api/posts', data=data)
 
@@ -114,3 +114,4 @@ class PostTestCase(APITestCase):
     #
     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
     #     self.fail()
+
