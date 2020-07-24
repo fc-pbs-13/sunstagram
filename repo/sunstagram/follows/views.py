@@ -18,7 +18,7 @@ class FollowViewSet(mixins.CreateModelMixin,
         - list : users/12/follows (Follow.following.filter(following_id=user_12.id))
         - delete : follows/23 (request.user unfollowing user_23)
     """
-    queryset = Follow.objects.all()
+    queryset = Follow.objects.all().select_related('follower__userprofile')
     serializer_class = FollowSerializer
     permission_classes = [IsFollowerSelfOrReadOnly, ]
 

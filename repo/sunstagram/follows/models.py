@@ -17,6 +17,7 @@ class Follow(models.Model):
         UserProfile.objects.filter(user_id=self.following.id).update(follower_count=F('follower_count') + 1)
 
     def delete(self, using=None, keep_parents=False):
-        super().delete(using, keep_parents)
+        deleted = super().delete(using, keep_parents)
         UserProfile.objects.filter(user_id=self.follower.id).update(following_count=F('following_count') - 1)
         UserProfile.objects.filter(user_id=self.following.id).update(follower_count=F('follower_count') - 1)
+        return deleted

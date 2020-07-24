@@ -1,37 +1,26 @@
 import datetime
-import io
 
 from django.utils import timezone
 from model_bakery import baker
 from munch import Munch
 from rest_framework import status
-from rest_framework.generics import get_object_or_404
 from rest_framework.test import APITestCase
 
-from PIL import Image
 
-from stories.models import Story, StoryViewCheck
+from stories.models import Story, StoryViewCheck, ImageMaker
 from users.models import User
 
 
 class StoryTestCase(APITestCase):
-    @staticmethod
-    def temporary_image():
-        file = io.BytesIO()
-        image = Image.new('RGB', (1, 1))
-        image.save(file, 'jpeg')
-        file.name = 'test.jpg'
-        file.seek(0)
-        return file
 
     def setUp(self):
         self.test_users = baker.make('users.User', _quantity=2)
         self.test_follows = baker.make('follows.Follow', following=self.test_users[0], _quantity=2)
         self.image_name = 'test.jpg'
-        self.data = {'story_text': 'for test', 'story_image': self.temporary_image()}
+        self.data = {'story_text': 'for test', 'story_image': ImageMaker.temporary_image()}
         self.valid_story = baker.make('stories.Story',
                                       user=self.test_users[0],
-                                      story_image=self.temporary_image().name)
+                                      story_image=ImageMaker.temporary_image().name)
 
     def test_should_create_story(self):
         self.client.force_authenticate(user=self.test_users[0])
@@ -50,7 +39,7 @@ class StoryTestCase(APITestCase):
         self.client.force_authenticate(user=self.test_users[1])
         stories = baker.make('stories.Story',
                              user=self.test_users[1],
-                             story_image=self.temporary_image().name,
+                             story_image=ImageMaker.temporary_image().name,
                              _quantity=2)
         response = self.client.get(f'/api/users/{self.test_users[1].id}/stories')
 
@@ -67,7 +56,7 @@ class StoryTestCase(APITestCase):
         # invalid_story : 하루 이상 지난 스토리
         invalid_story = baker.make('stories.Story',
                                    user=self.test_users[0],
-                                   story_image=self.temporary_image().name,
+                                   story_image=ImageMaker.temporary_image().name,
                                    time_stamp=(timezone.now() - datetime.timedelta(days=2)))
         response = self.client.get(f'/api/users/{self.test_users[0].id}/stories')
 
@@ -94,9 +83,9 @@ class StoryTestCase(APITestCase):
         self.assertEqual(response.data[0]['user']['id'], self.valid_story.user.id)
 
     def test_should_update_story(self):
-        data = {'story_text': 'changed', 'story_image': self.temporary_image()}
+        data = {'story_text': 'changed', 'story_image': ImageMaker.temporary_image()}
         self.client.force_authenticate(user=self.test_users[0])
-        entry = Story.objects.create(user=self.test_users[0], story_image=self.temporary_image().name)
+        entry = Story.objects.create(user=self.test_users[0], story_image=ImageMaker.temporary_image().name)
         prev_text = entry.story_text
         prev_image = entry.story_image
 
@@ -113,7 +102,7 @@ class StoryTestCase(APITestCase):
 
     def test_should_delete_story(self):
         self.client.force_authenticate(user=self.test_users[0])
-        entry = Story.objects.create(user=self.test_users[0], story_image=self.temporary_image().name)
+        entry = Story.objects.create(user=self.test_users[0], story_image=ImageMaker.temporary_image().name)
 
         response = self.client.delete(f'/api/stories/{entry.id}')
 

@@ -16,9 +16,3 @@ class Photo(models.Model):
                                      format='JPEG',
                                      options={'quality': 60})
 
-
-class PhotoFactory(Factory):
-    photo_images = factory.django.ImageField()
-
-    class Meta:
-        model = Photo

@@ -11,10 +11,12 @@ class CommentTestCase(APITestCase):
     def setUp(self):
         self.test_user = baker.make('users.User', username='test')
         self.test_post = baker.make('feeds.Post', user=self.test_user, post_text='hi')
+        self.comment_size = 2
+        self.reply_size = 2
         self.test_comments = baker.make('comments.Comment',
                                         post=self.test_post,
                                         user=self.test_user,
-                                        _quantity=2)
+                                        _quantity=self.comment_size)
         self.comment = self.test_comments[0]
 
     def test_should_create_comment(self):
@@ -36,7 +38,7 @@ class CommentTestCase(APITestCase):
         response = self.client.get(f'/api/posts/{self.test_post.id}/comments')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(Comment.objects.all().count(), 2)
+        self.assertEqual(Comment.objects.all().count(), self.comment_size)
         for comment, comment_response in zip(self.test_comments[::-1], response.data):
             self.assertEqual(comment.id, comment_response['id'])
             self.assertEqual(comment.comment_text, comment_response['comment_text'])
@@ -45,7 +47,7 @@ class CommentTestCase(APITestCase):
 
     def test_should_update_comment(self):
         self.client.force_authenticate(user=self.test_user)
-        baker.make('replies.Reply', user=self.test_user, comment=self.comment, _quantity=2)
+        baker.make('replies.Reply', user=self.test_user, comment=self.comment, _quantity=self.reply_size)
         data = {'comment_text': 'changed'}
 
         response = self.client.put(f'/api/posts/{self.test_post.id}/comments/{self.comment.id}', data=data)
@@ -68,15 +70,17 @@ class ReplyTestCase(APITestCase):
     def setUp(self):
         self.test_user = baker.make('users.User', username='test')
         self.test_post = baker.make('feeds.Post', user=self.test_user)
+        self.comment_size = 2
+        self.reply_size = 2
         self.test_comments = baker.make('comments.Comment',
                                         post=self.test_post,
                                         user=self.test_user,
-                                        _quantity=2)
+                                        _quantity=self.comment_size)
         self.comment = self.test_comments[0]
         self.test_replies = baker.make('replies.Reply',
                                        user=self.test_user,
                                        comment=self.comment,
-                                       _quantity=2)
+                                       _quantity=self.reply_size)
 
     def test_should_create_reply(self):
         self.client.force_authenticate(user=self.test_user)
@@ -94,7 +98,7 @@ class ReplyTestCase(APITestCase):
     def test_should_list_replies(self):
         response = self.client.get(f'/api/comments/{self.comment.id}/replies')
 
-        self.assertEqual(Reply.objects.all().count(), 2)
+        self.assertEqual(Reply.objects.all().count(), self.reply_size)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for reply, reply_response in zip(self.test_replies, response.data):
             self.assertEqual(reply.id, reply_response['id'])

@@ -23,7 +23,7 @@ class StoryViewSet(ModelViewSet):
             _min = now - datetime.timedelta(days=1)
             queryset = queryset.filter(Q(user=self.request.user)
                                        | Q(user__in=User.objects.filter(followings__follower=self.request.user)))
-            queryset = queryset.filter(time_stamp__gte=_min, time_stamp__lte=now)
+            queryset = queryset.filter(time_stamp__gte=_min)
 
         return queryset
 
