@@ -26,9 +26,9 @@ class TagPostList(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
-        HashTag.objects.filter(tag_id=self.tag.id).update(tag_count=F('tag_count') + 1)
+        HashTag.objects.filter(id=self.tag.id).update(tag_count=F('tag_count') + 1)
 
     def delete(self, using=None, keep_parents=False):
         deleted = super().delete(using, keep_parents)
-        HashTag.objects.filter(tag_id=self.tag.id).update(tag_count=F('tag_count') - 1)
+        HashTag.objects.filter(id=self.tag.id).update(tag_count=F('tag_count') - 1)
         return deleted

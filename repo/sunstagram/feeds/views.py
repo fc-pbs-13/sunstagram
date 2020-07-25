@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
 from core.permissions import IsOwnerOrReadOnly
 from feeds.models import Post, HashTag, TagPostList
-from feeds.serializers import PostSerializer, HashTagSerializer, TagPostListSerializer
+from feeds.serializers import PostSerializer, HashTagSerializer, TagPostListSerializer, PostWithTagSerializer
 
 
 class PostViewSet(ModelViewSet):
@@ -11,8 +11,24 @@ class PostViewSet(ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 
+    def create(self, request, *args, **kwargs):
+        """
+        tag 포함 요청일 경우 시리얼라이저 변경
+        """
+        if request.data.get('tag'):
+            self.serializer_class = PostWithTagSerializer
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        """
+        tag 포함 요청일 경우 시리얼라이저 변경
+        """
+        if request.data.get('tag'):
+            self.serializer_class = PostWithTagSerializer
+        return super().update(request, *args, **kwargs)
 
 
 class HashTagViewSet(ModelViewSet):

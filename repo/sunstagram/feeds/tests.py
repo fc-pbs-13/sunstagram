@@ -1,10 +1,9 @@
 from model_bakery import baker
 from munch import Munch
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from feeds.models import Post
+from feeds.models import Post, TagPostList, HashTag
 from photos.models import Photo
 from profiles.models import UserProfile, ProfileFactory
 from stories.models import ImageMaker
@@ -17,15 +16,32 @@ class PostTestCase(APITestCase):
         self.test_user = User.objects.create(email='test@example.com',
                                              password=self.test_password,
                                              username='test')
-        self.test_post = baker.make('feeds.Post', user=self.test_user, post_text='for test')
+        self.test_post = baker.make('feeds.Post', user=self.test_user)
         self.test_profile = UserProfile.objects.get(user=self.test_user)
         self.test_image = ImageMaker.temporary_image()
         self.test_image2 = ImageMaker.temporary_image()
         self.test_profile_image = ProfileFactory().profile_image
+        self.expected_tag_count = 2
 
-    def test_should_create_post(self):
+    def test_should_create_post_with_hash_tag(self):
         self.client.force_authenticate(user=self.test_user)
-        data = {'post_text': 'for test', 'tag': [{'name': {'cat', 'dog'}}]}
+        data = {'post_text': 'for test', 'tag': {'name': ['cat', 'dog']}}
+
+        response = self.client.post('/api/posts', data=data)
+
+        post_response = Munch(response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(post_response.id)
+        self.assertEqual(post_response.post_text, data['post_text'])
+        # tag 생성 검사
+        for name in data['tag']['name']:
+            self.assertTrue(HashTag.objects.filter(name=name).exists())
+        self.assertEqual(TagPostList.objects.filter(post_id=post_response.id).count(),
+                         self.expected_tag_count)
+
+    def test_should_create_post_no_tag(self):
+        self.client.force_authenticate(user=self.test_user)
+        data = {'post_text': 'for test'}
 
         response = self.client.post('/api/posts', data=data)
 
@@ -35,7 +51,6 @@ class PostTestCase(APITestCase):
         self.assertEqual(post_response.post_text, data['post_text'])
 
     def test_should_create_multi_photo(self):
-        Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
         data = {'photo_images': [self.test_image, self.test_image2],
                 'post_id': self.test_post.id}
@@ -54,7 +69,6 @@ class PostTestCase(APITestCase):
             self.assertEqual(test_post.post_text, post_response['post_text'])
 
     def test_should_update_posts(self):
-        Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
         prev_text = self.test_post.post_text
         data = {'post_text': 'changed'}
@@ -63,8 +77,23 @@ class PostTestCase(APITestCase):
         post_response = Munch(response.data)
         self.assertNotEqual(prev_text, post_response.post_text)
 
+    def test_should_update_posts_with_tag(self):
+        self.client.force_authenticate(user=self.test_user)
+        test_tag = HashTag.objects.create(name='test')
+        TagPostList.objects.create(post=self.test_post, tag=test_tag)
+        prev_text = self.test_post.post_text
+        data = {'post_text': 'changed', 'tag': {'name': ['test', 'python']}}
+
+        response = self.client.put(f'/api/posts/{self.test_post.id}', data=data)
+        post_response = Munch(response.data)
+        self.assertNotEqual(prev_text, post_response.post_text)
+        # tag 업데이트 검사 ( before: 'test' -> after: 'test', 'python')
+        for name in data['tag']['name']:
+            self.assertTrue(HashTag.objects.filter(name=name).exists())
+        self.assertEqual(TagPostList.objects.filter(post_id=post_response.id).count(),
+                         self.expected_tag_count)
+
     def test_should_delete_posts(self):
-        Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
 
         response = self.client.delete(f'/api/posts/{self.test_post.id}')
@@ -72,10 +101,9 @@ class PostTestCase(APITestCase):
         self.assertFalse(Post.objects.filter(id=self.test_post.id).exists())
 
     def test_should_delete_photos(self):
-        Token.objects.create(user_id=self.test_user.id)
         self.client.force_authenticate(user=self.test_user)
         entry = Photo.objects.create(post=self.test_post,
-                                     photo_images=self.test_image,
+                                     photo_images=self.test_image.name,
                                      image_name=self.test_image.name,
                                      user=self.test_user)
 
