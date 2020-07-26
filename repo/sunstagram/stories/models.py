@@ -9,11 +9,11 @@ from uuid_upload_path import upload_to
 
 class ImageMaker:
     @staticmethod
-    def temporary_image():
+    def temporary_image(name='test.jpg'):
         file = io.BytesIO()
         image = Image.new('RGB', (1, 1))
         image.save(file, 'jpeg')
-        file.name = 'test.jpg'
+        file.name = name
         file.seek(0)
         return file
 
