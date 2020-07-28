@@ -10,7 +10,9 @@ from feeds.serializers import PostSerializer, TagPostListSerializer, TagShowSeri
 
 
 class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all().select_related('user__userprofile').prefetch_related('photo_posts')
+    queryset = Post.objects.all().select_related('user__userprofile').\
+        prefetch_related('tagged_posts__tag', 'photo_posts')
+
     serializer_class = PostSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 

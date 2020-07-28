@@ -10,7 +10,7 @@ from profiles.serializers import UserProfileSerializer
 class UserProfileViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          GenericViewSet):
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().select_related('user')
     serializer_class = UserProfileSerializer
 
     permission_classes = [IsOwner, ]

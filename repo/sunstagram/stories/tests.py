@@ -44,7 +44,7 @@ class StoryTestCase(APITestCase):
         response = self.client.get(f'/api/users/{self.test_users[1].id}/stories')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
-        for entry, response_entry in zip(stories, response.data):
+        for entry, response_entry in zip(stories, response.data[::-1]):
             self.assertEqual(entry.id, response_entry['id'])
             self.assertEqual(entry.story_text, response_entry['story_text'])
             self.assertTrue('.jpg' in response_entry['story_image'])

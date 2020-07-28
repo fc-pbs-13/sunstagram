@@ -57,7 +57,6 @@ class FollowTestCase(APITestCase):
         response = self.client.get(f'/api/users/{self.following.id}/following')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Follow.objects.filter(following=self.following).count(), self.expected_count)
-        self.assertEqual(User.objects.filter(followers__following=self.following).count(), self.expected_count)
 
         for entry, response_entry in zip(test_follows, response.data):
             response_follower = User.objects.get(id=response_entry['id'])

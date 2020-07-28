@@ -10,7 +10,7 @@ from users.models import User
 
 
 class StoryViewSet(ModelViewSet):
-    queryset = Story.objects.all()
+    queryset = Story.objects.all().select_related('user__userprofile')
     serializer_class = StorySerializer
 
     def perform_create(self, serializer):
