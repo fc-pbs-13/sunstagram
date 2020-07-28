@@ -24,7 +24,7 @@ class TagShowSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     images = PhotoSerializer(many=True, read_only=True, source='photo_posts')
-    tags = serializers.ListField(child=serializers.CharField(max_length=12), write_only=True)
+    tags = serializers.ListField(child=serializers.CharField(max_length=12), write_only=True, required=False)
     _tags = TagShowSerializer(many=True, read_only=True, source='tagged_posts')
     user = PostingProfileSerializer(source='user.userprofile', read_only=True)
 

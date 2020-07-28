@@ -13,13 +13,13 @@ class CommentViewSet(mixins.CreateModelMixin,
                      mixins.ListModelMixin,
                      GenericViewSet):
 
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.all().select_related('user__userprofile')
     serializer_class = CommentSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 
     def filter_queryset(self, queryset):
         if self.action == 'list':
-            queryset = queryset.filter(post_id=self.kwargs.get('comment_pk'))
+            queryset = queryset.filter(post_id=self.kwargs.get('post_pk'))
         return super().filter_queryset(queryset)
 
     def perform_create(self, serializer):

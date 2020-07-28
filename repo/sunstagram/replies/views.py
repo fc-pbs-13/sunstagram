@@ -13,7 +13,7 @@ class ReplyViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
-    queryset = Reply.objects.all()
+    queryset = Reply.objects.all().select_related('user__userprofile')
     serializer_class = ReplySerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 

@@ -97,14 +97,12 @@ class PostTestCase(APITestCase):
         self.assertEqual(Post.objects.filter(tagged_posts__tag=tag).count(), expected_count)
         for res in response.data:
             self.assertEqual(res['_tags'][0]['tag']['name'], tag.name)
-        self.fail()
 
     def test_should_update_posts_with_tag(self):
         self.client.force_authenticate(user=self.test_users[0])
 
         test_tag = HashTag.objects.create(name='test')
         TagPostList.objects.create(post=self.test_post, tag=test_tag)
-
         prev_text = self.test_post.post_text
         data = {'post_text': 'changed', 'tags': ['test', 'python']}
 

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
-from follows.models import Follow
+from follows.models import Follow, Parent
 from profiles.serializers import PostingProfileSerializer
 from users.models import User
 
@@ -40,3 +40,9 @@ class FollowersListSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ['id', 'follower', 'user']
         read_only_fields = ('id', 'follower', 'user')
+
+
+class ParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parent
+        fields = ['id', 'uuid']

@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import mixins, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -59,8 +61,8 @@ class UserViewSet(mixins.CreateModelMixin,
     @action(detail=False, methods=['POST'])
     def sign_in(self, request):
         password = request.data.get('password')
-        user = User.objects.get(email=request.data.get('email'),
-                                username=request.data.get('username'))
+        user = get_object_or_404(User, email=request.data.get('email'),
+                                 username=request.data.get('username'))
 
         if user.check_password(password):
             token, created = Token.objects.get_or_create(user=user)
@@ -94,4 +96,3 @@ class UserViewSet(mixins.CreateModelMixin,
 
     def list(self, request, *args, **kwargs):
         return Response(status.HTTP_403_FORBIDDEN)
-

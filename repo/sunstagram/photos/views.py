@@ -13,7 +13,7 @@ class PhotoViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    GenericViewSet):
 
-    queryset = Photo.objects.all()
+    queryset = Photo.objects.all().select_related('user')
     serializer_class = PhotoSerializer
     permission_classes = [IsOwnerOrReadOnly]
 

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import models
 from django.db.models import F
 
@@ -21,3 +23,13 @@ class Follow(models.Model):
         UserProfile.objects.filter(user_id=self.follower.id).update(following_count=F('following_count') - 1)
         UserProfile.objects.filter(user_id=self.following.id).update(follower_count=F('follower_count') - 1)
         return deleted
+
+
+class Parent(models.Model):
+    uuid = models.UUIDField(default=uuid4())
+
+
+class Child(models.Model):
+    uuid = models.UUIDField(default=uuid4())
+    parent = models.ForeignKey('follows.Parent', related_name='parents', on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey('users.User', related_name='child_users', on_delete=models.CASCADE, null=True)

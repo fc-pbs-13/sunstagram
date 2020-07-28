@@ -5,7 +5,7 @@ from rest_framework_nested import routers
 
 from comments.views import CommentViewSet
 from feeds.views import PostViewSet, TagPostViewSet, SearchTagViewSet
-from follows.views import FollowViewSet
+from follows.views import FollowViewSet, ParentViewSet
 from likes.views import PostLikeViewSet, CommentLikeViewSet, ReplyLikeViewSet
 from photos.views import PhotoViewSet
 from replies.views import ReplyViewSet
@@ -26,6 +26,7 @@ router.register(r'reply_likes', ReplyLikeViewSet)
 router.register(r'follows', FollowViewSet)
 router.register(r'stories', StoryViewSet)
 router.register(r'tags', SearchTagViewSet)
+router.register(r'parents', ParentViewSet)
 
 
 """

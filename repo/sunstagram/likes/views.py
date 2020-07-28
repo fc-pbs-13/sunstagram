@@ -15,7 +15,7 @@ class PostLikeViewSet(mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       mixins.ListModelMixin,
                       GenericViewSet):
-    queryset = PostLike.objects.all()
+    queryset = PostLike.objects.all().select_related('user__userprofile')
     serializer_class = PostLikeSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 
@@ -33,7 +33,7 @@ class CommentLikeViewSet(mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          mixins.ListModelMixin,
                          GenericViewSet):
-    queryset = CommentLike.objects.all()
+    queryset = CommentLike.objects.all().select_related('user__userprofile')
     serializer_class = CommentLikeSerializer
     permission_classes = [IsOwnerOrReadOnly, ]
 
