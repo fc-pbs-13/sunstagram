@@ -34,22 +34,35 @@ class FollowViewSet(mixins.CreateModelMixin,
         following = get_object_or_404(User, id=self.kwargs.get('user_pk'))
         serializer.save(follower=self.request.user, following=following)
 
-
 class ParentViewSet(ModelViewSet):
     queryset = Parent.objects.all()
     serializer_class = ParentSerializer
     permission_classes = [AllowAny, ]
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    def list(self, request, *args, **kwargs):
-        key = 'my_key'
-        val = cache.get('key')
+    # def retrieve(self, request, *args, **kwargs):
+    #     pk = kwargs.get('pk')
+    #     if cache.get(f'Parent-instance{pk}') is None:
+    #         instance = self.get_object()
+    #         cache.set(f'Parent-instance{pk}', instance, 60)
+    #     else:
+    #         instance = cache.get(f'Parent-instance{pk}')
+    #
+    #     # May raise a permission denied
+    #     self.check_object_permissions(self.request, instance)
+    #     # cache.get_or_set(f'Parent-instance{pk}', instance, 60)
+    #     serializer = self.get_serializer(instance)
+    #     return Response(serializer.data)
 
-        if not val:
-            sleep(3)
-            val = 'fast-campus'
-            cache.set(key, val, 60)
-            data = {
-                'my_data': val,
-            }
-        return Response(data=data)
+# @method_decorator(cache_page(60 * 60 * 2))
+# def list(self, request, *args, **kwargs):
+#     key = 'my_key'
+#     val = cache.get('key')
+#
+#     if not val:
+#         sleep(3)
+#         val = 'fast-campus'
+#         cache.set(key, val, 60)
+#         data = {
+#             'my_data': val,
+#         }
+#     return Response(data=data)

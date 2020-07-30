@@ -48,7 +48,6 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if validated_data.get('tags'):
             obj_id_list = []
-
             for name in validated_data['tags']:
                 obj, _ = HashTag.objects.update_or_create(name=name)
                 obj_id_list.append(obj.id)

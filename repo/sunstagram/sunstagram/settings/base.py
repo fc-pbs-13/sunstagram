@@ -56,7 +56,9 @@ INSTALLED_APPS = [
     'likes',
     'follows',
     'stories',
+
     'debug_toolbar',
+    'cacheops',
 ]
 
 MIDDLEWARE = [
@@ -151,9 +153,7 @@ TEST = False
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.TokenAuthentication',
-                                       'rest_framework.authentication.BasicAuthentication',
-                                       'rest_framework.authentication.SessionAuthentication', ],
+    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.TokenAuthentication', ],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 
@@ -192,4 +192,21 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
+}
+
+CACHEOPS_REDIS = {
+    'host': 'localhost', # redis-server is on same machine
+    'port': 6379,        # default redis port
+    'db': 1,             # SELECT non-default redis database
+                         # using separate redis db or redis instance
+                         # is highly recommended
+
+    # 'socket_timeout': 3,   # connection timeout in seconds, optional
+    # 'password': '...',     # optional
+    # 'unix_socket_path': '' # replaces host and port
+}
+
+CACHEOPS = {
+    'follows.Parent': {'ops': 'get', 'timeout': 60},
+    'users.User': {'ops': 'get', 'timeout': 60},
 }

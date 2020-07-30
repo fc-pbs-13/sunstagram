@@ -74,7 +74,6 @@ class StoryTestCase(APITestCase):
 
         self.client.force_authenticate(user=follower)
         response = self.client.get(f'/api/users/{self.test_users[0].id}/stories')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
         self.assertEqual(User.objects.filter(followings__follower=follower).count(), 1)
         self.assertEqual(response.data[0]['id'], self.valid_story.id)
