@@ -14,6 +14,12 @@ import os
 import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+import logging
+from logdna import LogDNAHandler  # required to register `logging.handlers.LogDNAHandler`
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env_file = os.path.dirname(os.path.dirname(BASE_DIR)) + '/.env'
 environ.Env.read_env(env_file=env_file)
@@ -25,9 +31,9 @@ environ.Env.read_env(env_file=env_file)
 SECRET_KEY = 'e1wsh%wol61&u@ls8!ns)=3is@el^3fsdp9de^f9xpkcg)kqzt'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -56,7 +62,9 @@ INSTALLED_APPS = [
     'likes',
     'follows',
     'stories',
+
     'debug_toolbar',
+    'cacheops',
 ]
 
 MIDDLEWARE = [
@@ -151,9 +159,7 @@ TEST = False
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.TokenAuthentication',
-                                       'rest_framework.authentication.BasicAuthentication',
-                                       'rest_framework.authentication.SessionAuthentication', ],
+    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.TokenAuthentication', ],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 
@@ -193,3 +199,75 @@ CACHES = {
         }
     }
 }
+
+CACHEOPS_REDIS = {
+    'host': 'localhost',  # redis-server is on same machine
+    'port': 6379,  # default redis port
+    'db': 1,  # SELECT non-default redis database
+    # using separate redis db or redis instance
+    # is highly recommended
+
+    # 'socket_timeout': 3,   # connection timeout in seconds, optional
+    # 'password': '...',     # optional
+    # 'unix_socket_path': '' # replaces host and port
+}
+
+CACHEOPS = {
+    'follows.Parent': {'ops': 'get', 'timeout': 60},
+    # user 관련
+    'users.User': {'ops': 'get', 'timeout': 60},
+    'profiles.UserProfile': {'ops': 'get', 'timeout': 60},
+    'authtoken.Token': {'ops': 'get', 'timeout': 60},
+
+    # Post 관련
+    'feeds.HashTag': {'ops': 'fetch', 'timeout': 60},
+    'feeds.TagPostList': {'ops': 'fetch', 'timeout': 60},
+}
+
+sentry_sdk.init(
+    dsn='https://cd312bdee55d4163a6587d82a664d67b@o427978.ingest.sentry.io/5374686',
+    integrations=[DjangoIntegration(), CeleryIntegration()],
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
+
+LOGGING = {
+    # Other logging settings...
+    'version': 1,
+    'handlers': {
+        'logdna': {
+            'level': logging.DEBUG,
+            'class': 'logging.handlers.LogDNAHandler',
+            'key': '7c1e1d64bd2a468f05405f4f2081cbc2',
+            # 'options': {
+            #     'app': 'celery_test',
+            #     # 'env': '<environment>',
+            #     'index_meta': True,
+            # },
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/Users/seonwoong-hwang/Documents/dev/sunstagram/repo/sunstagram/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['logdna', 'console', 'file'],
+            'level': logging.DEBUG
+        },
+    },
+}
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST_USER = 'mail address'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_PASSWORD = ''

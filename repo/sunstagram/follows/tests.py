@@ -3,6 +3,7 @@ from munch import Munch
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from feeds.models import Post
 from follows.models import Follow
 from profiles.models import UserProfile
 from users.models import User

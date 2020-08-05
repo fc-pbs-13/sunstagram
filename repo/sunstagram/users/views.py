@@ -96,3 +96,4 @@ class UserViewSet(mixins.CreateModelMixin,
 
     def list(self, request, *args, **kwargs):
         return Response(status.HTTP_403_FORBIDDEN)
+
