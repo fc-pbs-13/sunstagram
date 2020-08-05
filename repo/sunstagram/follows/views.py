@@ -2,10 +2,12 @@ import datetime
 from time import sleep
 
 from django.core.cache import cache
+from django.core.mail import send_mail
 from django.db.models import F
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import mixins
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -39,7 +41,27 @@ class ParentViewSet(ModelViewSet):
     serializer_class = ParentSerializer
     permission_classes = [AllowAny, ]
 
-    # def retrieve(self, request, *args, **kwargs):
+    # def function2(self, a, b, c='name'):
+    #     aa = 100
+    #     bb = 'abc'
+    #     cc = { 'val': aa}
+    #     0/0
+    #
+    # @action(detail=False, methods=['GET'])
+    # def function(self, req):
+        # a = 10
+        # b = 2
+        # self.function2(a, 0, c='abc')
+        # send_mail(
+        #     'test email',
+        #     'function called!',
+        #     'hsw0905@gmail.com',
+        #     ['hsw0905@gmail.com'],
+        #     fail_silently=False,
+        # )
+
+
+# def retrieve(self, request, *args, **kwargs):
     #     pk = kwargs.get('pk')
     #     if cache.get(f'Parent-instance{pk}') is None:
     #         instance = self.get_object()

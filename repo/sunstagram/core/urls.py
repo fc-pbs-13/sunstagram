@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import include
+from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
