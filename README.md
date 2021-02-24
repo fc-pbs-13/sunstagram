@@ -1,7 +1,6 @@
 # sunstagram
+### 인스타그램 서비스 백엔드 클론 
 
 ## API 기능명세
-### https://docs.google.com/presentation/d/1Hc82nv9mXPvDh1t5inNF_n-3St3cmjms2-WZIYdi-Rg/edit#slide=id.g8ae57dd891_0_12
+### [link](https://docs.google.com/presentation/d/1Hc82nv9mXPvDh1t5inNF_n-3St3cmjms2-WZIYdi-Rg/edit#slide=id.g8ae57dd891_0_12)
 
-## API 문서(작성중)
-### https://app.apiary.io/sunstagram/editor
