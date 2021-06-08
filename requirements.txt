@@ -13,7 +13,7 @@ Faker==4.1.1
 model-bakery==1.1.0
 munch==2.5.0
 pilkit==2.0
-Pillow==8.1.1
+Pillow==8.2.0
 psycopg2-binary==2.8.5
 python-dateutil==2.8.1
 pytz==2020.1
